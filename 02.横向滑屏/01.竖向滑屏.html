@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			html,body{
+				height: 100%;
+				overflow: hidden;
+			}
+			#wrap{
+				height: 100%;
+			}
+			#content{
+				position: absolute;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="content">
+				
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		document.addEventListener('touchstart',function(ev){
+			ev.preventDefault();
+		});
+		
+		var wrap = document.getElementById('wrap');
+		var content = document.getElementById('content');
+		//造文本
+		var text = '';
+		for (var i=0;i<250;i++) {
+			text += i + '<br/>';
+		}
+		content.innerHTML = text;
+		
+		//定义手指和内容区初始位置
+		var eleY = 0;
+		var startY = 0;
+		
+		wrap.addEventListener('touchstart',function(ev){
+			var touch = ev.changedTouches[0];
+			startY = touch.clientY;
+			eleY = content.offsetTop;
+		})
+		wrap.addEventListener('touchmove',function(ev){
+			var touch = ev.changedTouches[0];
+			//手指当前位置
+			var nowY = touch.clientY;
+			
+			//范围的限定
+			var top = eleY + (nowY - startY);
+			if(top > 0){
+				top = 0;
+			}else if(top < document.documentElement.clientHeight-content.offsetHeight){
+				top = document.documentElement.clientHeight-content.offsetHeight
+			}
+			//元素现在位置
+			content.style.top = top + 'px'
+		})
+		
+		
+	</script>
+</html>

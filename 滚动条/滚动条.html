@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>滚动条</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+    }
+    html,body{
+      height:100%;
+      overflow: hidden;
+    }
+    .wrapper{
+      height:100%;
+      width:30px;
+      background-color: #f6a;
+      position: absolute;
+      right:0;
+      top:0;
+    }
+    .inner{
+      width:100%;
+      background-color: #6fa;
+      position: absolute;
+      top:0;
+      left:0;
+    }
+  </style>
+</head>
+<body>
+<div class="content"></div>
+<div class="wrapper">
+  <div class="inner">
+  </div>
+</div>
+
+<script>
+  var content=document.querySelector('.content');
+  var wrapper=document.querySelector('.wrapper');
+  var inner=document.querySelector('.inner');
+  var winHeight=document.documentElement.clientHeight;
+
+  //造文本
+  var str='';
+  for (var i = 0; i < 150; i++) {
+    str+=i+'<br>';
+  }
+  content.innerHTML=str;
+
+  //获取scale
+  var scale=winHeight/content.offsetHeight;
+//  设置inner初始样式
+  inner.style.height=winHeight*scale+'px';
+  //inner 鼠标按下事件
+  var mouseStart=0;
+  var mouseEnd=0;
+  var eleY=0;
+  inner.onmousedown=function (ev) {
+    ev=ev||event;
+    mouseStart=ev.clientY;
+    eleY=inner.offsetTop;
+    inner.setCapture && inner.setCapture();
+    document.onmousemove=function (ev) {
+      ev=ev||event;
+      mouseEnd=ev.clientY;
+      var disY=mouseEnd-mouseStart+eleY;
+      if(disY<0){
+        disY=0;
+      }else if(disY>winHeight-inner.offsetHeight){
+        disY=winHeight-inner.offsetHeight;
+      }
+      inner.style.top=disY+'px';
+      document.onmouseup=function () {
+        document.onmousemove=document.onmouseup=null;
+        inner.releaseCapture && inner.releaseCapture();
+      }
+    }
+  }
+</script>
+</body>
+</html>

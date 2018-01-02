@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Title</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+    }
+    html,body{
+      height:100%;
+      overflow: hidden;
+    }
+    #slide-wrapper{
+      position: relative;
+    }
+    #slide-content{
+      list-style: none;
+    }
+    #slide-content:after{
+      content: '';
+      display: table;
+      clear: both;
+    }
+    #slide-content li{
+      float: left;
+    }
+    #slide-content li img{
+      display: block;
+      width:100%;
+    }
+    #cir{
+      position: absolute;
+      bottom:10px;
+      left: 0;
+      width:100%;
+      height:10px;
+      font-size:0;
+      text-align: right;
+    }
+    #cir i{
+      display: inline-block;
+      height: 10px;
+      width: 10px;
+      border-radius:50%;
+      background-color: #f6a;
+      margin:0 8px;
+    }
+    #cir .active{
+      background-color: #6fa;
+    }
+  </style>
+</head>
+<body>
+<div id="container">
+  <div id="slide-wrapper">
+    <ul id="slide-content">
+      <li><a href="#"><img src="../img/1.jpg" alt="/"></a></li>
+      <li><a href="#"><img src="../img/2.jpg" alt="/"></a></li>
+      <li><a href="#"><img src="../img/3.jpg" alt="/"></a></li>
+      <li><a href="#"><img src="../img/4.jpg" alt="/"></a></li>
+      <li><a href="#"><img src="../img/5.jpg" alt="/"></a></li>
+    </ul>
+    <div id="cir"><i class="active"></i><i></i><i></i><i></i><i></i></div>
+  </div>
+</div>
+
+<script src="transformcss.js"></script>
+<script>
+  window.onload=function () {
+    var slideWrapper=document.querySelector('#slide-wrapper');
+    var slideContent=document.querySelector('#slide-content');
+    slideContent.innerHTML+=slideContent.innerHTML;
+    var lis=document.querySelectorAll('#slide-content li');
+    var cirs=document.querySelectorAll('#cir i');
+
+    var lisLen=lis.length;
+    var cirsLen=cirs.length;
+    //设置初始样式
+    var styleNode=document.createElement('style');
+    var str='#slide-content li{width:'+100/lisLen+'%;}';
+    str+='#slide-content{width:'+lisLen+'00%;}';
+    str+='#slide-wrapper{height:'+lis[0].offsetHeight+'px;}';
+    styleNode.innerHTML=str;
+    document.head.appendChild(styleNode);
+
+    //鼠标事件
+    //设置可能用到的初始变量
+    var winWidth=document.documentElement.clientWidth;
+    var touchStartX=0;
+    var touchEndX=0;
+    var touchStartY=0;
+    var touchEndY=0;
+    var eleX=0;
+    var now=0;
+    var isFirst=true;
+    var isX=true;
+
+    //清除浏览器默认行为
+    document.addEventListener('touchstart',function (ev) {
+      ev.preventDefault();
+    });
+
+    //手按下
+    slideWrapper.addEventListener('touchstart',function (ev) {
+      slideContent.style.transition='none';
+      isFirst=true;
+      isX=true;
+      clearInterval(slideWrapper.timer);
+      if(now===0){
+        now=cirsLen;
+        transformCss(slideContent,'translateX',-now*winWidth);
+      }else if(now===lisLen-1){
+        now=cirsLen-1;
+        transformCss(slideContent,'translateX',-now*winWidth);
+      }
+      var touches=ev.changedTouches[0];
+      touchStartX=touches.clientX;
+      touchStartY=touches.clientY;
+      eleX=transformCss(slideContent,'translateX');
+    });
+
+    //手移动
+    slideWrapper.addEventListener('touchmove',function (ev) {
+      var touches=ev.changedTouches[0];
+      touchEndX=touches.clientX;
+      touchEndY=touches.clientY;
+      if(!isX){
+        return;
+      }
+      if(isFirst){
+        isFirst=false;
+        if(Math.abs(touchEndY-touchStartY)>Math.abs(touchEndX-touchStartX)){
+          isX=false;
+          return;
+        }
+      }
+      var eleMoveX=touchEndX-touchStartX+eleX;
+      transformCss(slideContent,'translateX',eleMoveX);
+    });
+
+    //手结束
+    slideWrapper.addEventListener('touchend',function () {
+      now=Math.round(-transformCss(slideContent,'translateX')/winWidth);
+      if(now<0){
+        now=0;
+      }else if(now>lisLen-1){
+        now=lisLen-1;
+      }
+      slideContent.style.transition='.5s';
+      transformCss(slideContent,'translateX',-now*winWidth);
+
+      //小圈圈效果
+      cirs.forEach(function (cir) {
+        if(cir.className==='active'){
+          cir.className='';
+          return false;
+        }
+      });
+      cirs[now%cirsLen].className='active';
+      autoPlay();
+    });
+
+    //自动轮播
+    autoPlay();
+    function autoPlay() {
+      clearInterval(slideWrapper.timer);
+      slideWrapper.timer=setInterval(function () {
+        if(now===lisLen-1){
+          now=cirsLen-1;
+        }
+        slideContent.style.transition='none';
+        transformCss(slideContent,'translateX',-now*winWidth);
+       setTimeout(function () {
+         now++;
+         slideContent.style.transition='transform .5s';
+         transformCss(slideContent,'translateX',-now*winWidth);
+         //小圆点自动切换
+         cirs.forEach(function (cir) {
+           if(cir.className==='active'){
+             cir.className='';
+             return false;
+           }
+         });
+         cirs[now%cirsLen].className='active';
+       },0);
+      },2000)
+    }
+  }
+</script>
+</body>
+</html>

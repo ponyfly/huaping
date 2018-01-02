@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>定位横向</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+    }
+    html,body{
+      height:100%;
+      overflow: hidden;
+    }
+    .wrapper{
+      position:relative;
+    }
+    #list{
+      position: absolute;
+      list-style: none;
+    }
+    #list:after{
+      content: '';
+      display: table;
+      clear: both;
+    }
+    #list li{
+      float: left;
+    }
+    #list li img{
+      display: block;
+      width:100%;
+    }
+    #cir{
+      position: absolute;
+      left: 0;
+      bottom:10px;
+      height:10px;
+      width:100%;
+      text-align: right;
+      font-size: 0;
+    }
+    i{
+      display: inline-block;
+      height: 10px;
+      width: 10px;
+      border-radius:50%;
+      background-color: #f6a;
+      margin:0 8px;
+    }
+    .active{
+      background-color: #6fa;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <ul id="list">
+    <li><a href="#"><img src="../img/1.jpg" alt=""></a></li>
+    <li><a href="#"><img src="../img/2.jpg" alt=""></a></li>
+    <li><a href="#"><img src="../img/3.jpg" alt=""></a></li>
+    <li><a href="#"><img src="../img/4.jpg" alt=""></a></li>
+    <li><a href="#"><img src="../img/5.jpg" alt=""></a></li>
+  </ul>
+  <ul id="cir">
+    <i class="active"></i>
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+  </ul>
+</div>
+
+<script>
+  //获取元素
+  var wrapper=document.querySelector('.wrapper');
+  var list=document.querySelector('#list');
+  var lis=document.querySelectorAll('#list li');
+  var cirs=document.querySelectorAll('#cir i');
+  var len=lis.length;
+  var winWidth=document.documentElement.clientWidth;
+
+  //设置初始css样式
+  var styleNode=document.createElement('style');
+  var str='#list{width:'+len*100+'%;}';
+  str+='#list li{width:'+100/len+'%;}';
+  str+='.wrapper{height:'+lis[0].offsetHeight+'px;}';
+  styleNode.innerHTML=str;
+  document.head.appendChild(styleNode);
+
+  //清除浏览器默认行为
+  document.addEventListener('touchstart',function (ev) {
+    ev.preventDefault();
+  });
+
+  //添加横向划屏事件
+  //手按下
+  var touchStart=0;
+  var touchEnd=0;
+  var eleX=0;
+  wrapper.addEventListener('touchstart',function (ev) {
+    ev=ev||event;
+    var touches=ev.changedTouches[0];
+    touchStart=touches.clientX;
+    eleX=list.offsetLeft;
+  });
+  //手移动
+  wrapper.addEventListener('touchmove',function (ev) {
+    ev=ev||event;
+    var touches=ev.changedTouches[0];
+    touchEnd=touches.clientX;
+    var disX=touchEnd-touchStart+eleX;
+    list.style.left=disX+'px';
+  });
+  //手结束
+  wrapper.addEventListener('touchend',function () {
+    var now=Math.round(-list.offsetLeft/winWidth);
+    if(now<0){
+      now=0;
+    }else if(now>len-1){
+      now=len-1;
+    }
+    list.style.left=-now*winWidth+'px';
+
+    //小圈圈切换
+    cirs.forEach(function (cir) {
+      if(cir.className==='active'){
+        cir.className='';
+        return false;
+      }
+    });
+    cirs[now].className='active';
+  });
+
+</script>
+</body>
+</html>

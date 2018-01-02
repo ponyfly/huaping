@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+  <title>纵向滚动条</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+    }
+    html,body{
+      height:100%;
+      overflow: hidden;
+    }
+    .wrapper{
+      height:100%;
+      position: relative;
+    }
+    .content{
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="content"></div>
+</div>
+
+<script>
+  //阻止浏览器默认行为
+  document.addEventListener('touchstart',function (ev) {
+    ev.preventDefault();
+  });
+  var wrapper=document.querySelector('.wrapper');
+  var content=document.querySelector('.content');
+  //造文本
+  var str='';
+  for (var i = 0; i < 100; i++) {
+    str+=i+'<br>';
+  }
+  content.innerHTML=str;
+  var mouseStart=0;
+  var contentStart=0;
+  wrapper.addEventListener('touchstart',function (ev) {
+    var touches=ev.changedTouches[0];
+    //按下初始Y位置
+    mouseStart=touches.clientY;
+    //按下content位置
+    contentStart=content.offsetTop;
+  });
+  wrapper.addEventListener('touchmove',function (ev) {
+    var touches=ev.changedTouches[0];
+    var mouseEnd=touches.clientY;
+    var  disY=mouseEnd-mouseStart+contentStart;
+    if(disY>0){
+      disY=0
+    }else if(disY<document.documentElement.clientHeight-content.offsetHeight){
+      disY=document.documentElement.clientHeight-content.offsetHeight;
+    }
+    content.style.top=disY+'px';
+  })
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>定位横向</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+    }
+    html,body{
+      height:100%;
+      overflow: hidden;
+    }
+    .slideWrap{
+      position:relative;
+    }
+    #listCon{
+      position: absolute;
+      list-style: none;
+    }
+    #listCon:after{
+      content: '';
+      display: table;
+      clear: both;
+    }
+    #listCon li{
+      float: left;
+    }
+    #listCon li img{
+      display: block;
+      width:100%;
+    }
+    #cir{
+      position: absolute;
+      left: 0;
+      bottom:10px;
+      height:10px;
+      width:100%;
+      text-align: right;
+      font-size: 0;
+    }
+    i{
+      display: inline-block;
+      height: 10px;
+      width: 10px;
+      border-radius:50%;
+      background-color: #f6a;
+      margin:0 8px;
+    }
+    .active{
+      background-color: #6fa;
+    }
+  </style>
+</head>
+<body>
+<div class="slideWrap">
+  <ul id="listCon">
+    <li><a href="#"><img src="../img/1.jpg" alt=""></a></li>
+    <li><a href="#"><img src="../img/2.jpg" alt=""></a></li>
+    <li><a href="#"><img src="../img/3.jpg" alt=""></a></li>
+    <li><a href="#"><img src="../img/4.jpg" alt=""></a></li>
+    <li><a href="#"><img src="../img/5.jpg" alt=""></a></li>
+  </ul>
+  <ul id="cir">
+    <i class="active"></i>
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+  </ul>
+</div>
+<script src="transformcss.js"></script>
+<script>
+  //获取元素
+  var slideWrap=document.querySelector('.slideWrap');
+  var listCon=document.querySelector('#listCon');
+  listCon.innerHTML+=listCon.innerHTML;
+  var lis=document.querySelectorAll('#listCon li');
+  var cirs=document.querySelectorAll('#cir i');
+  var liLen=lis.length;
+  var cirLen=cirs.length;
+  var winWidth=document.documentElement.clientWidth;
+
+  //设置初始css样式
+  var styleNode=document.createElement('style');
+  var str='#listCon{width:'+liLen*100+'%;}';
+  str+='#listCon li{width:'+100/liLen+'%;}';
+  str+='.slideWrap{height:'+lis[0].offsetHeight+'px;}';
+  styleNode.innerHTML=str;
+  document.head.appendChild(styleNode);
+
+  //清除浏览器默认行为
+  document.addEventListener('touchstart',function (ev) {
+    ev.preventDefault();
+  });
+
+  //添加横向划屏事件
+  //手按下
+  var touchStart=0;
+  var touchEnd=0;
+  var eleX=0;
+  var now=0;
+  slideWrap.addEventListener('touchstart',function (ev) {
+    clearInterval(listCon.timer);
+    if(now===0){
+      now=cirLen;
+    }else if(now===liLen-1){
+      now=cirLen-1;
+    }
+    transformCss(listCon,'translateX',-now*winWidth);
+    var touches=ev.changedTouches[0];
+    touchStart=touches.clientX;
+    eleX=transformCss(listCon,'translateX');
+  });
+  //手移动
+  slideWrap.addEventListener('touchmove',function (ev) {
+    var touches=ev.changedTouches[0];
+    touchEnd=touches.clientX;
+    transformCss(listCon,'translateX',touchEnd-touchStart+eleX);
+  });
+  //手结束
+  slideWrap.addEventListener('touchend',function () {
+    now=Math.round(-transformCss(listCon,'translateX')/winWidth);
+    if(now<0){
+      now=0;
+    }else if(now>liLen-1){
+      now=liLen-1;
+    }
+    transformCss(listCon,'translateX',-now*winWidth);
+
+    //小圈圈切换
+    cirs.forEach(function (cir) {
+      if(cir.className==='active'){
+        cir.className='';
+        return false;
+      }
+    });
+    cirs[now%cirLen].className='active';
+    auto();
+  });
+
+  //自动轮播
+  auto();
+  function auto() {
+    clearInterval(listCon.timer);
+    listCon.timer=setInterval(function () {
+      if(now===liLen-1){
+        now=cirLen-1;
+        listCon.style.transition='none';
+        transformCss(listCon,'translateX',-now*winWidth);
+      }
+      setTimeout(function () {
+        now++;
+        listCon.style.transition='.5s';
+        transformCss(listCon,'translateX',-now*winWidth);
+        //小圈圈切换
+        cirs.forEach(function (cir) {
+          if(cir.className==='active'){
+            cir.className='';
+            return false;
+          }
+        });
+        cirs[now%cirLen].className='active';
+      },20)
+    },2000)
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			#box{
+				width: 200px;
+				height: 200px;
+				background: yellowgreen;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="box">
+			
+		</div>
+	</body>
+	<script type="text/javascript">
+		var box = document.getElementById('box');
+		
+		
+		box.onmousedown = function(){
+			//获取元素初始位置
+			//鼠标初始位置
+						
+			box.setCapture && box.setCapture()
+			document.onmousemove = function(){
+				//现在鼠标的位置
+				
+				//求：元素现在位置 = 元素初始位置 +（现在鼠标的位置-鼠标初始位置）
+			}
+			document.onmouseup = function(){
+				document.onmousemove = document.onmouseup = null;
+				document.releaseCapture && document.releaseCapture();
+			}
+			return false;
+		}
+		
+		
+	</script>
+</html>

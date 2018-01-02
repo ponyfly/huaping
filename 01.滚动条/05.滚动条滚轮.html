@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			/*
+			 禁止系统滚动条
+			 * */
+			html,body{
+				height: 100%;
+				overflow: hidden;
+			}
+			#wrap{
+				position: absolute;
+				right: 0;
+				top: 0;
+				width: 20px;
+				height: 100%;
+				background: gray;
+			}
+			#inner{
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 20px;
+				height: 50px;
+				background: deeppink;
+			}
+			#content{
+				position: absolute;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="content">
+			
+		</div>
+		<!--滑槽-->
+		<div id="wrap">
+			<!--滑块-->
+			<div id="inner">
+				
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var content = document.getElementById('content');
+		var wrap = document.getElementById('wrap');
+		var inner = document.getElementById('inner');
+		
+		//造文本
+		var text = '';
+		for (var i=0;i<1000;i++) {
+			text += i + '<br/>';
+		}
+		content.innerHTML = text;
+		
+		//滚动条高度
+		window.onresize = function(){
+			var scale = document.documentElement.clientHeight/content.offsetHeight;
+			inner.style.height = document.documentElement.clientHeight * scale + 'px';
+		}
+		
+		var scale = document.documentElement.clientHeight/content.offsetHeight;
+		inner.style.height = document.documentElement.clientHeight * scale + 'px';
+		
+		var startY = 0;
+		var eleY = 0;
+		
+		inner.onmousedown = function(ev){
+			ev = ev || event;
+			//元素初始位置
+			eleY = inner.offsetTop
+			//鼠标初始位置
+			startY = ev.clientY;
+			
+			inner.setCapture && inner.setCapture()
+			document.onmousemove = function(ev){
+				ev = ev || event;
+				//鼠标现在位置
+				var nowY = ev.clientY;
+				
+				//范围的限定
+				var top = eleY + (nowY - startY)
+				
+				if(top < 0){
+					top = 0
+				}else if(top > document.documentElement.clientHeight-inner.offsetHeight){
+					top = document.documentElement.clientHeight-inner.offsetHeight
+				}
+				
+				//滑块现在位置
+				inner.style.top = top + 'px';
+				
+				//内容区变化
+				//内容偏移量 = 滚动条的偏移量  / scale1
+				//var scale = top / (document.documentElement.clientHeight-inner.offsetHeight);
+				//content.style.top = (document.documentElement.clientHeight - content.offsetHeight)*scale + 'px';
+				content.style.top = -top / scale + 'px';
+				
+			}
+			document.onmouseup = function(){
+				document.onmousemove = document.onmouseup = null;
+				document.releaseCapture && document.releaseCapture()
+			}
+			return false;
+		}
+
+
+		//滚轮事件
+		document.onmousewheel = fn;
+		document.addEventListener('DOMMouseScroll',fn)
+		
+		function fn(ev){
+			ev = ev || event;
+			
+			//标记向上或向下
+			var flag = '';
+			var add = 0;
+			if(ev.wheelDelta){
+				//ie/chrome
+				if(ev.wheelDelta>0){
+					flag = 'up';
+					add = -10;
+				}else{
+					flag = 'down';
+					add = 10;					
+				}
+			}else if(ev.detail){
+				//firefox
+				if(ev.detail>0){
+					flag = 'down'
+					add = 10;
+				}else{
+					flag = 'up'
+					add = -10;
+				}
+			}
+			
+			var innerTop = inner.offsetTop + add;
+			if(innerTop<0){
+				innerTop = 0
+			}else if(innerTop >document.documentElement.clientHeight - inner.offsetHeight){
+				innerTop = document.documentElement.clientHeight - inner.offsetHeight
+			}
+			
+			switch (flag){
+				case 'up':
+					//滚动条向上走，top减小
+					inner.style.top = innerTop + 'px';
+					content.style.top = -innerTop/scale + 'px';
+					break;
+				case 'down':
+					//滚动条向下走，top增加
+					inner.style.top = innerTop + 'px';
+					content.style.top = -innerTop/scale + 'px';
+					break;
+			}
+			
+			//取消系统默认行为
+			/*if(ev.preventDefault){
+				ev.preventDefault();
+			}
+			return false;*/
+		}
+		
+
+	</script>
+</html>

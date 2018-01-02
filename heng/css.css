@@ -1,0 +1,11 @@
+*{ margin:0; padding:0;}
+html, body { width: 150%; height:100%}
+body{font-size: 32px; color: #000;}
+#app {width: 750px; height:100%; background-color: wheat; margin:0 auto;overflow: hidden}
+#app .pages {}
+#app .pages .page {}
+#app .pages .page.page-1 {background-color: #f6a;}
+#app .pages .page.page-2 {background-color: #5d2;}
+#app .pages .page.page-3 {background-color: #36a;}
+#app .pages .page.page-4 {background-color: #52c;}
+#app .pages .page.page-5 {background-color: #06a;}

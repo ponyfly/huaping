@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>滚动条</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+    }
+    html,body{
+      height:100%;
+      overflow: hidden;
+    }
+    .wrapper{
+      position: absolute;
+      right:0;
+      top:0;
+      width: 30px;
+      height: 100%;
+      background-color: #f6a;
+    }
+    .inner{
+      position: absolute;
+      left:0;
+      top:0;
+      width: 30px;
+      height: 30px;
+      background-color: #6fa;
+    }
+    .content{
+      position: absolute;
+    }
+  </style>
+</head>
+<body style="height:3000px">
+<div class="content"></div>
+<div class="wrapper">
+  <div class="inner"></div>
+</div>
+
+<script>
+  var wrapper=document.querySelector('.wrapper');
+  var inner=document.querySelector('.inner');
+  var content=document.querySelector('.content');
+  var winHeight=document.documentElement.clientHeight;
+  //添加content
+  for (var i = 0; i < 800; i++) {
+    var pNode=document.createElement('p');
+    pNode.innerHTML=i;
+    content.appendChild(pNode);
+  }
+
+  //获取scale
+  var scale=winHeight/content.offsetHeight;
+  inner.style.height=scale*winHeight+'px';
+  //滚动条高度
+  window.onresize=function () {
+    inner.style.height=scale*winHeight+'px';
+  };
+  //鼠标按下事件
+  inner.onmousedown=function (ev) {
+    ev=ev||window.event;
+    var mouseStart=ev.clientY;
+    var innerStart=inner.offsetTop;
+
+    inner.setCapture && inner.setCapture();
+    document.onmousemove=function (ev) {
+      ev=ev||window.event;
+      var mouseEnd=ev.clientY;
+      var innerEnd=mouseEnd-mouseStart+innerStart;
+      //滚动条滚动
+      if(innerEnd<0){
+        innerEnd=0;
+      }else if(innerEnd>winHeight-inner.offsetHeight){
+        innerEnd=winHeight-inner.offsetHeight;
+      }
+      inner.style.top=innerEnd+'px';
+      //content
+      var contentTop=-innerEnd/scale;
+      content.style.top=contentTop+'px';
+    };
+    document.onmouseup=function () {
+      document.onmousemove=document.onmouseup=null;
+      inner.releaseCapture && inner.releaseCapture();
+    };
+    return false;
+  };
+  //鼠标滚轮滚动
+  //ie和chrome
+  document.onmousewheel=fn;
+  //firefox
+  document.addEventListener('DOMMouseScroll',fn);
+
+  function fn(ev) {
+    ev=ev||event;
+    var add=0;
+    if(ev.wheelDelta){
+      add=ev.wheelDelta>0?-10:10;
+    }else{
+      add=ev.detail<0?-10:10;
+    }
+
+    var innerTop=inner.offsetTop+add;
+    if(innerTop<0){
+      innerTop=0;
+    }else if(innerTop>winHeight-inner.offsetHeight){
+      innerTop=winHeight-inner.offsetHeight;
+    }
+    inner.style.top=innerTop+'px';
+    content.style.top=-innerTop/scale+'px';
+    //阻止浏览器默认行为
+    if(ev.preventDefault){
+      ev.preventDefault();
+    }
+    return false;
+  }
+</script>
+</body>
+</html>

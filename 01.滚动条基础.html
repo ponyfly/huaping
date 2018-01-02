@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			/*
+			 禁止系统滚动条
+			 * */
+			html,body{
+				height: 100%;
+				overflow: hidden;
+			}
+			#wrap{
+				position: absolute;
+				right: 0;
+				top: 0;
+				width: 20px;
+				height: 100%;
+				background: gray;
+			}
+			#inner{
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 20px;
+				height: 50px;
+				background: deeppink;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="content">
+			
+		</div>
+		<!--滑槽-->
+		<div id="wrap">
+			<!--滑块-->
+			<div id="inner">
+				
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var content = document.getElementById('content');
+		var wrap = document.getElementById('wrap');
+		var inner = document.getElementById('inner');
+		
+		//造文本
+		var text = '';
+		for (var i=0;i<500;i++) {
+			text += i + '<br/>';
+		}
+		content.innerHTML = text;
+		
+		var startY = 0;
+		var eleY = 0;
+		
+		inner.onmousedown = function(ev){
+			ev = ev || event;
+			//元素初始位置
+			eleY = inner.offsetTop
+			//鼠标初始位置
+			startY = ev.clientY;
+			
+			inner.setCapture && inner.setCapture()
+			document.onmousemove = function(ev){
+				ev = ev || event;
+				//鼠标现在位置
+				var nowY = ev.clientY;
+				
+				//范围的限定
+				var top = eleY + (nowY - startY)
+				
+				if(top < 0){
+					top = 0
+				}else if(top > document.documentElement.clientHeight-inner.offsetHeight){
+					top = document.documentElement.clientHeight-inner.offsetHeight
+				}
+				
+				//滑块现在位置
+				inner.style.top = top + 'px';
+			}
+			document.onmouseup = function(){
+				document.onmousemove = document.onmouseup = null;
+				document.releaseCapture && document.releaseCapture()
+			}
+			return false;
+		}
+		
+	</script>
+</html>
